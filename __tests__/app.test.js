@@ -24,3 +24,29 @@ describe("GET /api", () => {
       });
   });
 });
+
+describe("GET /api/topics", () => {
+  test("200: Responds with an object that has a key called topics, value of which is an object of all topics available", () => {
+    return request(app)
+      .get("/api/topics")
+      .expect(200)
+      .then((response) => {
+        const topicsArray = response.body.topics;
+        expect(topicsArray.length > 0).toBe(true);
+        topicsArray.forEach((topic) => {
+          const { slug, description, img_url } = topic;
+          expect(typeof slug).toBe("string");
+          expect(typeof description).toBe("string");
+          expect(typeof img_url).toBe("string");
+        });
+      });
+  });
+  test("GET /api/topicz, 400: responds 400 when an invalid request had been made to the endpoint", () => {
+    return request(app)
+      .get("/api/cola")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+});

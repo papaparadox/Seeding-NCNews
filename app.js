@@ -2,8 +2,17 @@ const express = require("express");
 const app = express();
 const db = require("./db/connection.js");
 const endpoints = require("./endpoints.json");
-const { logAllEndpoints } = require("./controllers/app.controllers.js");
+const {
+  sendAllEndpoints,
+  getAllTopics,
+} = require("./controllers/app.controllers.js");
 
-app.get("/api", logAllEndpoints);
+app.get("/api", sendAllEndpoints);
+
+app.get("/api/topics", getAllTopics);
+
+app.all("/*", (request, response) => {
+  response.status(400).send({ msg: "Invalid request" });
+});
 
 module.exports = app;
