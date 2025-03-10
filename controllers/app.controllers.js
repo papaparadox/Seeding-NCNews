@@ -1,7 +1,17 @@
 const endpoints = require("../endpoints.json");
+const { selectAllTopics } = require("../models/app.models");
 
-function logAllEndpoints(request, response) {
+function sendAllEndpoints(request, response) {
   return response.status(200).send({ endpoints });
 }
 
-module.exports = { logAllEndpoints };
+function getAllTopics(request, response) {
+  selectAllTopics()
+    .then((topics) => {
+      response.status(200).send({ topics: topics });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+module.exports = { sendAllEndpoints, getAllTopics };
