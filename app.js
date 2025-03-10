@@ -5,14 +5,19 @@ const endpoints = require("./endpoints.json");
 const {
   sendAllEndpoints,
   getAllTopics,
+  getArticleByID,
 } = require("./controllers/app.controllers.js");
+const { handleCustomErrors } = require("./controllers/errors.controllers.js");
 
 app.get("/api", sendAllEndpoints);
 
 app.get("/api/topics", getAllTopics);
 
+app.get("/api/articles/:article_id", getArticleByID);
+
 app.all("/*", (request, response) => {
-  response.status(400).send({ msg: "Invalid request" });
+  response.status(404).send({ msg: "Not found" });
 });
 
+app.use(handleCustomErrors);
 module.exports = app;
