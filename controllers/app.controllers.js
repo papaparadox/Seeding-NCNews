@@ -1,5 +1,9 @@
 const endpoints = require("../endpoints.json");
-const { selectAllTopics, selectArticleByID } = require("../models/app.models");
+const {
+  selectAllTopics,
+  selectArticleByID,
+  selectAllArticles,
+} = require("../models/app.models");
 
 function sendAllEndpoints(request, response) {
   return response.status(200).send({ endpoints });
@@ -28,4 +32,19 @@ function getArticleByID(request, response, next) {
       next(err);
     });
 }
-module.exports = { sendAllEndpoints, getAllTopics, getArticleByID };
+
+function getArticles(request, response, next) {
+  selectAllArticles()
+    .then((articles) => {
+      response.status(200).send({ articles: articles });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+module.exports = {
+  sendAllEndpoints,
+  getAllTopics,
+  getArticleByID,
+  getArticles,
+};

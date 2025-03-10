@@ -96,3 +96,45 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("GET /api/articles", () => {
+  test("200: Responds with an object that has a key called articles, value of which is an object of all topics available", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const articlesArray = response.body.articles;
+        expect(articlesArray.length > 0).toBe(true);
+        expect(articlesArray).toBeSortedBy("created_at", { descending: true });
+        articlesArray.forEach((article) => {
+          const {
+            author,
+            title,
+            article_id,
+            topic,
+            created_at,
+            votes,
+            article_img_url,
+            comment_count,
+          } = article;
+          expect(typeof author).toBe("string");
+          expect(typeof title).toBe("string");
+          expect(typeof article_id).toBe("number");
+          expect(typeof topic).toBe("string");
+          expect(typeof created_at).toBe("string");
+          expect(typeof votes).toBe("number");
+          expect(typeof article_img_url).toBe("string");
+          expect(typeof comment_count).toBe("number");
+          expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+  test("GET /api/articlez, 404: responds 404 when an invalid request had been made to the endpoint", () => {
+    return request(app)
+      .get("/api/articlez")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+});

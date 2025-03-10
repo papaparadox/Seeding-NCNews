@@ -25,3 +25,9 @@ db.query("SELECT * FROM articles WHERE author = 'grumpy19'").then(
 db.query("SELECT * FROM comments WHERE votes > 10").then(({ rows }) => {
   console.log("Comments with votes column set to 10 or more:", rows);
 });
+
+db.query(
+  "SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url FROM articles ORDER BY created_at DESC"
+).then(({ rows }) => {
+  console.log(rows);
+});
