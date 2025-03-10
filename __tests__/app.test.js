@@ -46,7 +46,7 @@ describe("GET /api/topics", () => {
       .get("/api/cola")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid request");
+        expect(body.msg).toBe("Not found");
       });
   });
 });
