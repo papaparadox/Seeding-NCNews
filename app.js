@@ -7,6 +7,7 @@ const {
   getAllTopics,
   getArticleByID,
   getArticles,
+  getCommentsByArticleID,
 } = require("./controllers/app.controllers.js");
 const { handleCustomErrors } = require("./controllers/errors.controllers.js");
 
@@ -17,6 +18,8 @@ app.get("/api/topics", getAllTopics);
 app.get("/api/articles/:article_id", getArticleByID);
 
 app.get("/api/articles", getArticles);
+
+app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 
 app.all("/*", (request, response) => {
   response.status(404).send({ msg: "Not found" });

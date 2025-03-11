@@ -98,7 +98,7 @@ describe("GET /api/articles/:article_id", () => {
 });
 
 describe("GET /api/articles", () => {
-  test("200: Responds with an object that has a key called articles, value of which is an object of all topics available", () => {
+  test("200: Responds with an array of objects, that are sorted in descending order", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -129,12 +129,51 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("GET /api/articlez, 404: responds 404 when an invalid request had been made to the endpoint", () => {
+  test("GET /api/articlez, 404: responds 404 when a request to an invalid endpoint has been made", () => {
     return request(app)
       .get("/api/articlez")
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Not found");
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: responds with an array of comments for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then((response) => {
+        const commentsArray = response.body.comment;
+        expect(commentsArray.length > 0).toBe(true);
+        expect(commentsArray).toBeSortedBy("created_at", { descending: true });
+        commentsArray.forEach((comment) => {
+          const { comment_id, votes, created_at, author, body, article_id } =
+            comment;
+          expect(typeof comment_id).toBe("number");
+          expect(typeof votes).toBe("number");
+          expect(typeof created_at).toBe("string");
+          expect(typeof author).toBe("string");
+          expect(typeof body).toBe("string");
+          expect(typeof article_id).toBe("number");
+        });
+      });
+  });
+  test("404: responds with an error if the article doesn't exist by provided value", () => {
+    return request(app)
+      .get("/api/articles/2128/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("400: responds with an error if instead of numeric value provided a non-existent path", () => {
+    return request(app)
+      .get("/api/articles/banana/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
       });
   });
 });

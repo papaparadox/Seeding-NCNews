@@ -3,6 +3,7 @@ const {
   selectAllTopics,
   selectArticleByID,
   selectAllArticles,
+  selectCommentsByID,
 } = require("../models/app.models");
 
 function sendAllEndpoints(request, response) {
@@ -23,14 +24,15 @@ function getArticleByID(request, response, next) {
   const { article_id } = request.params;
   if (isNaN(article_id)) {
     response.status(400).send({ status: 400, msg: "Invalid request" });
+  } else {
+    selectArticleByID(article_id)
+      .then((article) => {
+        response.status(200).send({ article: article });
+      })
+      .catch((err) => {
+        next(err);
+      });
   }
-  selectArticleByID(article_id)
-    .then((article) => {
-      response.status(200).send({ article: article });
-    })
-    .catch((err) => {
-      next(err);
-    });
 }
 
 function getArticles(request, response, next) {
@@ -42,9 +44,24 @@ function getArticles(request, response, next) {
       next(err);
     });
 }
+
+function getCommentsByArticleID(request, response, next) {
+  const { article_id } = request.params;
+  if (isNaN(article_id)) {
+    response.status(400).send({ status: 400, msg: "Invalid request" });
+  }
+  selectCommentsByID(article_id)
+    .then((comment) => {
+      response.status(200).send({ comment: comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
 module.exports = {
   sendAllEndpoints,
   getAllTopics,
   getArticleByID,
   getArticles,
+  getCommentsByArticleID,
 };
