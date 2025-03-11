@@ -151,6 +151,7 @@ describe("GET /api/articles/:article_id/comments", () => {
         commentsArray.forEach((comment) => {
           const { comment_id, votes, created_at, author, body, article_id } =
             comment;
+          expect(article_id).toBe(3);
           expect(typeof comment_id).toBe("number");
           expect(typeof votes).toBe("number");
           expect(typeof created_at).toBe("string");
@@ -171,6 +172,55 @@ describe("GET /api/articles/:article_id/comments", () => {
   test("400: responds with an error if instead of numeric value provided a non-existent path", () => {
     return request(app)
       .get("/api/articles/banana/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: responds with a posted comment", () => {
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send({
+        username: "butter_bridge",
+        body: "serendipity is real",
+      })
+      .expect(201)
+      .then((response) => {
+        const { comment_id, article_id, body, votes, author, created_at } =
+          response.body.newComment;
+        expect(typeof comment_id).toBe("number");
+        expect(article_id).toBe(2);
+        expect(body).toBe("serendipity is real");
+        expect(votes).toBe(0);
+        expect(author).toBe("butter_bridge");
+        expect(typeof created_at).toBe("string");
+      });
+  });
+  test("400: responds with an error when body key is missing from request", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send({ username: "lurker" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("404: responds with an error if the article doesn't exist by provided value", () => {
+    return request(app)
+      .post("/api/articles/200/comments")
+      .send({ username: "butter_bridge", body: "nice one!" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("400: responds with an error if the article_id is a non-numeric value", () => {
+    return request(app)
+      .post("/api/articles/banana/comments")
+      .send({ username: "lurker", body: "bananas are good" })
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid request");
