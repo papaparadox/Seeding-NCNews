@@ -147,7 +147,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .then((response) => {
         const commentsArray = response.body.comment;
         expect(commentsArray.length > 0).toBe(true);
-        expect(commentsArray).toBeSortedBy("created_at", { descending: false });
+        expect(commentsArray).toBeSortedBy("created_at", { descending: true });
         commentsArray.forEach((comment) => {
           const { comment_id, votes, created_at, author, body, article_id } =
             comment;
