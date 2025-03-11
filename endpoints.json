@@ -43,5 +43,21 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves specific comments with requested article id",
+    "queries": [],
+    "exampleResponse": {
+      "comment": [
+        {
+          "comment_id": 11,
+          "article_id": 3,
+          "body": "Ambidextrous marsupial",
+          "votes": 0,
+          "author": "icellusedkars",
+          "created_at": "2020-09-19T23:10:00.000Z"
+        }
+      ]
+    }
   }
 }
