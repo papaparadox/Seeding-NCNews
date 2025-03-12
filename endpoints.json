@@ -59,5 +59,39 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "adds a new comment for an article with provided article id",
+    "queries": [],
+    "exampleResponse": {
+      "newComment": [
+        {
+          "comment_id": 19,
+          "article_id": 3,
+          "body": "Ambidextrous marsupial",
+          "votes": 0,
+          "author": "butter_bridge",
+          "created_at": "2020-09-19T23:10:00.000Z"
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates a comment by specific article_id, changes votes column by a specific value",
+    "queries": [],
+    "exampleResponse": {
+      "newArticle": [
+        {
+          "article_id": 3,
+          "title": "Eight pug gifs that remind me of mitch",
+          "topic": "mitch",
+          "author": "icellusedkars",
+          "body": "some gifs",
+          "created_at": "2020-11-03T09:12:00.000Z",
+          "votes": 5,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        }
+      ]
+    }
   }
 }

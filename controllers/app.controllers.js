@@ -1,3 +1,4 @@
+const { articleData } = require("../db/data/test-data");
 const endpoints = require("../endpoints.json");
 const {
   selectAllTopics,
@@ -5,6 +6,7 @@ const {
   selectAllArticles,
   selectCommentsByID,
   insertCommentByID,
+  updateArticleByID,
 } = require("../models/app.models");
 
 function sendAllEndpoints(request, response) {
@@ -64,6 +66,18 @@ function postCommentByArticleID(request, response, next) {
       next(err);
     });
 }
+
+function patchArticleByID(request, response, next) {
+  const { article_id } = request.params;
+  const { inc_votes } = request.body;
+  updateArticleByID(inc_votes, article_id)
+    .then((newArticle) => {
+      response.status(200).send({ newArticle: newArticle });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
 module.exports = {
   sendAllEndpoints,
   getAllTopics,
@@ -71,4 +85,5 @@ module.exports = {
   getArticles,
   getCommentsByArticleID,
   postCommentByArticleID,
+  patchArticleByID,
 };
