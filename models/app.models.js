@@ -52,10 +52,25 @@ function insertCommentByID(article_id, username, body) {
     });
 }
 
+function updateArticleByID(votes, article_id) {
+  return db
+    .query(
+      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
+      [votes, article_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not found" });
+      }
+      return rows[0];
+    });
+}
+
 module.exports = {
   selectAllTopics,
   selectArticleByID,
   selectAllArticles,
   selectCommentsByID,
   insertCommentByID,
+  updateArticleByID,
 };
