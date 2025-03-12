@@ -17,14 +17,41 @@ function selectArticleByID(article_id) {
     });
 }
 
-function selectAllArticles() {
-  return db
-    .query(
-      "SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY created_at DESC"
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+function selectAllArticles(sort_by = "created_at", orderToUpper = "desc") {
+  if (arguments.length === 0) {
+    return db
+      .query(
+        "SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY created_at DESC"
+      )
+      .then(({ rows }) => {
+        return rows;
+      });
+  } else {
+    const validArticleColumns = [
+      "author",
+      "title",
+      "article_id",
+      "topic",
+      "created_at",
+      "votes",
+      "article_img_url",
+      "comment_count",
+    ];
+    const validOrder = ["asc", "desc"];
+    if (
+      !validArticleColumns.includes(sort_by) ||
+      !validOrder.includes(orderToUpper)
+    ) {
+      return Promise.reject({ status: 400, msg: "Bad request" });
+    }
+    return db
+      .query(
+        `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY ${sort_by} ${orderToUpper}`
+      )
+      .then(({ rows }) => {
+        return rows;
+      });
+  }
 }
 
 function selectCommentsByID(article_id) {
@@ -53,17 +80,21 @@ function insertCommentByID(article_id, username, body) {
 }
 
 function updateArticleByID(votes, article_id) {
-  return db
-    .query(
-      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
-      [votes, article_id]
-    )
-    .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "Not found" });
-      }
-      return rows[0];
-    });
+  if (!isNaN(votes)) {
+    return db
+      .query(
+        "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
+        [votes, article_id]
+      )
+      .then(({ rows }) => {
+        if (rows.length === 0) {
+          return Promise.reject({ status: 404, msg: "Not found" });
+        }
+        return rows[0];
+      });
+  } else {
+    return Promise.reject({ status: 400, msg: "Invalid request" });
+  }
 }
 
 function deleteCommentByID(comment_id) {
