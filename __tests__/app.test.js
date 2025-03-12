@@ -180,6 +180,31 @@ describe("GET /api/articles", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
+  test("200: responds with an array of article objects that are sorted by specific topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((response) => {
+        const articlesArray = response.body.articles;
+        expect(articlesArray).toBeSortedBy("topic", { descending: true });
+      });
+  });
+  test("404: responds with an error when query has an invalid value for topic", () => {
+    return request(app)
+      .get("/api/articles?topic=dancetillyoucan't")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("400: responds with an error when query has invalid characters", () => {
+    return request(app)
+      .get("/api/articles?thadfhdfh")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
