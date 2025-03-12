@@ -11,6 +11,7 @@ const {
   postCommentByArticleID,
   patchArticleByID,
   removeCommentByID,
+  getAllUsers,
 } = require("./controllers/app.controllers.js");
 const {
   handleCustomErrors,
@@ -23,6 +24,7 @@ app.get("/api/topics", getAllTopics);
 app.get("/api/articles/:article_id", getArticleByID);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
+app.get("/api/users", getAllUsers);
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleID);
 
