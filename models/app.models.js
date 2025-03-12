@@ -38,20 +38,37 @@ function selectAllArticles(sort_by = "created_at", orderToUpper = "desc") {
       "comment_count",
     ];
     const validOrder = ["asc", "desc"];
+    console.log(sort_by, orderToUpper);
     if (
       !validArticleColumns.includes(sort_by) ||
       !validOrder.includes(orderToUpper)
     ) {
       return Promise.reject({ status: 400, msg: "Bad request" });
+    } else {
+      return db
+        .query(
+          `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY ${sort_by} ${orderToUpper}`
+        )
+        .then(({ rows }) => {
+          return rows;
+        });
     }
-    return db
-      .query(
-        `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY ${sort_by} ${orderToUpper}`
-      )
-      .then(({ rows }) => {
-        return rows;
-      });
   }
+}
+
+function selectArticlesByTopic(topic) {
+  console.log(topic);
+  return db
+    .query(
+      `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id WHERE articles.topic = $1 GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY created_at DESC`,
+      [topic]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not found" });
+      }
+      return rows;
+    });
 }
 
 function selectCommentsByID(article_id) {
@@ -125,4 +142,5 @@ module.exports = {
   updateArticleByID,
   deleteCommentByID,
   selectAllUsers,
+  selectArticlesByTopic,
 };
