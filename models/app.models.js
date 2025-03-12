@@ -79,6 +79,12 @@ function deleteCommentByID(comment_id) {
     });
 }
 
+function selectAllUsers() {
+  return db.query("SELECT * FROM users").then(({ rows }) => {
+    return rows;
+  });
+}
+
 module.exports = {
   selectAllTopics,
   selectArticleByID,
@@ -87,4 +93,5 @@ module.exports = {
   insertCommentByID,
   updateArticleByID,
   deleteCommentByID,
+  selectAllUsers,
 };
