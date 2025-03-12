@@ -98,7 +98,7 @@ describe("GET /api/articles/:article_id", () => {
 });
 
 describe("GET /api/articles", () => {
-  test("200: responds with an array of article objects, that are sorted in descending order", () => {
+  test("200: responds with an array of article objects, that are sorted in descending order by created_at", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -135,6 +135,49 @@ describe("GET /api/articles", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Not found");
+      });
+  });
+  test("200: responds with an array of article objects that are sorted by authors and order is descending", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=desc")
+      .expect(200)
+      .then((response) => {
+        const articlesArray = response.body.articles;
+        expect(articlesArray).toBeSortedBy("author", { descending: true });
+      });
+  });
+  test("200: responds with an array of article objects that are sorted by title and order is ascending", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=asc")
+      .expect(200)
+      .then((response) => {
+        const articlesArray = response.body.articles;
+        expect(articlesArray).toBeSortedBy("title", { descending: false });
+      });
+  });
+  test("200: responds with an array of article objects that are sorted by created_at and order is descending when sort_by query is missing", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then((response) => {
+        const articlesArray = response.body.articles;
+        expect(articlesArray).toBeSortedBy("created_at", { descending: false });
+      });
+  });
+  test("400:responds with an error when query has an invalid value for sort_by", () => {
+    return request(app)
+      .get("/api/articles/?sort_by=banana&order=desc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400: responds with an error when query has an invalid value for order", () => {
+    return request(app)
+      .get("/api/articles/?sort_by=title&order=distance")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
@@ -298,6 +341,15 @@ describe("PATCH /api/articles/:article_id", () => {
     return request(app)
       .patch("/api/articles/3")
       .send({ inc_votes: "lizard" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("400: responds with an error when inc_votes key is missing from request", () => {
+    return request(app)
+      .patch("/api/articles/3")
+      .send({})
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid request");
