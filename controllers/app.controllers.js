@@ -9,6 +9,7 @@ const {
   updateArticleByID,
   deleteCommentByID,
   selectAllUsers,
+  selectArticlesByTopic,
 } = require("../models/app.models");
 
 function sendAllEndpoints(request, response) {
@@ -46,7 +47,21 @@ function getArticles(request, response, next) {
         next(err);
       });
   } else {
-    const { sort_by, order } = request.query;
+    const { sort_by, order, topic } = request.query;
+    const validTopics = ["mitch", "cats"];
+    if (topic !== undefined) {
+      selectArticlesByTopic(topic)
+        .then((articles) => {
+          response.status(200).send({ articles: articles });
+        })
+        .catch((err) => {
+          next(err);
+        });
+    }
+    if (sort_by === undefined && order === undefined && topic === undefined) {
+      return response.status(400).send({ msg: "Bad request" });
+    }
+
     selectAllArticles(sort_by, order)
       .then((articles) => {
         response.status(200).send({ articles: articles });
