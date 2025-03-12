@@ -9,6 +9,7 @@ const {
   getArticles,
   getCommentsByArticleID,
   postCommentByArticleID,
+  patchArticleByID,
 } = require("./controllers/app.controllers.js");
 const {
   handleCustomErrors,
@@ -24,11 +25,13 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleID);
 
-app.use(handlePsqlErrors);
-app.use(handleCustomErrors);
+app.patch("/api/articles/:article_id", patchArticleByID);
 
 app.all("/*", (request, response) => {
-  response.status(404).send({ msg: "Not found" });
+  return response.status(404).send({ msg: "Not found" });
 });
+
+app.use(handlePsqlErrors);
+app.use(handleCustomErrors);
 
 module.exports = app;
