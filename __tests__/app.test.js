@@ -322,3 +322,38 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: comment by a specific comment id gets deleted and responds with an object having statusCode 204 and message of 'No content'", () => {
+    return request(app)
+      .delete("/api/comments/4")
+      .expect(204)
+      .then((response) => {
+        expect(response.body).toEqual({});
+        expect(response.res.statusMessage).toBe("No Content");
+      })
+      .then(() => {
+        return db.query("SELECT * FROM comments WHERE comment_id = 4");
+      })
+      .then(({ rows }) => {
+        console.log(rows);
+        expect(rows.length).toBe(0);
+      });
+  });
+  test("400: responds with an error if the comment_id is a non-numeric value", () => {
+    return request(app)
+      .delete("/api/comments/solutionnotvent")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("404: responds with an error if the comment_id doesn't exist", () => {
+    return request(app)
+      .delete("/api/comments/4945")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+});
