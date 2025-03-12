@@ -37,13 +37,24 @@ function getArticleByID(request, response, next) {
 }
 
 function getArticles(request, response, next) {
-  selectAllArticles()
-    .then((articles) => {
-      response.status(200).send({ articles: articles });
-    })
-    .catch((err) => {
-      next(err);
-    });
+  if (Object.keys(request.query).length === 0) {
+    selectAllArticles()
+      .then((articles) => {
+        response.status(200).send({ articles: articles });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  } else {
+    const { sort_by, order } = request.query;
+    selectAllArticles(sort_by, order)
+      .then((articles) => {
+        response.status(200).send({ articles: articles });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
 }
 
 function getCommentsByArticleID(request, response, next) {
