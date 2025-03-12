@@ -8,6 +8,7 @@ const {
   insertCommentByID,
   updateArticleByID,
   deleteCommentByID,
+  selectAllUsers,
 } = require("../models/app.models");
 
 function sendAllEndpoints(request, response) {
@@ -90,6 +91,16 @@ function removeCommentByID(request, response, next) {
       next(err);
     });
 }
+
+function getAllUsers(request, response, next) {
+  selectAllUsers()
+    .then((users) => {
+      response.status(200).send({ users: users });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
 module.exports = {
   sendAllEndpoints,
   getAllTopics,
@@ -99,4 +110,5 @@ module.exports = {
   postCommentByArticleID,
   patchArticleByID,
   removeCommentByID,
+  getAllUsers,
 };
