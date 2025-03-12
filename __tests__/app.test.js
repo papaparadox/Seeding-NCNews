@@ -41,7 +41,7 @@ describe("GET /api/topics", () => {
         });
       });
   });
-  test("GET /api/topicz, 404: responds 404 when an invalid request had been made to the endpoint", () => {
+  test("404: responds 404 when an invalid request had been made to the endpoint", () => {
     return request(app)
       .get("/api/cola")
       .expect(404)
@@ -129,7 +129,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("GET /api/articlez, 404: responds 404 when a request to an invalid endpoint has been made", () => {
+  test("404: responds 404 when a request to an invalid endpoint has been made", () => {
     return request(app)
       .get("/api/articlez")
       .expect(404)
@@ -224,6 +224,101 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("404:responds with an error if the username provided doesn't exist", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send({ username: "tim2004", body: "bananas are good" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: updates an article by votes and responds with an article that has been updated by a positive number", () => {
+    return request(app)
+      .patch("/api/articles/3")
+      .send({ inc_votes: 5 })
+      .expect(200)
+      .then((response) => {
+        const {
+          article_id,
+          title,
+          topic,
+          author,
+          body,
+          created_at,
+          votes,
+          article_img_url,
+        } = response.body.newArticle;
+        expect(votes).toBe(5);
+        expect(article_id).toBe(3);
+        expect(typeof author).toBe("string");
+        expect(typeof title).toBe("string");
+        expect(typeof article_id).toBe("number");
+        expect(typeof topic).toBe("string");
+        expect(typeof created_at).toBe("string");
+        expect(typeof votes).toBe("number");
+        expect(typeof article_img_url).toBe("string");
+        expect(typeof body).toBe("string");
+      });
+  });
+  test("200: updates an article by votes and responds with an article that has been updated by a negative number", () => {
+    return request(app)
+      .patch("/api/articles/3")
+      .send({ inc_votes: -100 })
+      .expect(200)
+      .then((response) => {
+        const {
+          article_id,
+          title,
+          topic,
+          author,
+          body,
+          created_at,
+          votes,
+          article_img_url,
+        } = response.body.newArticle;
+        expect(votes).toBe(-100);
+        expect(article_id).toBe(3);
+        expect(typeof author).toBe("string");
+        expect(typeof title).toBe("string");
+        expect(typeof article_id).toBe("number");
+        expect(typeof topic).toBe("string");
+        expect(typeof created_at).toBe("string");
+        expect(typeof votes).toBe("number");
+        expect(typeof article_img_url).toBe("string");
+        expect(typeof body).toBe("string");
+      });
+  });
+  test("400: responds with an error when inc_votes key has an invalid value", () => {
+    return request(app)
+      .patch("/api/articles/3")
+      .send({ inc_votes: "lizard" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("400: responds with an error if the article_id is a non-numeric value", () => {
+    return request(app)
+      .patch("/api/articles/wabalabadabdab")
+      .send({ inc_votes: 10 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("404: responds with an error if the article_id doesn't exist", () => {
+    return request(app)
+      .patch("/api/articles/2004")
+      .send({ inc_votes: 23 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
       });
   });
 });
