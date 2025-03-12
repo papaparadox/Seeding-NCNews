@@ -15,7 +15,7 @@ afterAll(() => {
 });
 
 describe("GET /api", () => {
-  test("200: Responds with an object detailing the documentation for each endpoint", () => {
+  test("200: responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
       .get("/api")
       .expect(200)
@@ -26,7 +26,7 @@ describe("GET /api", () => {
 });
 
 describe("GET /api/topics", () => {
-  test("200: Responds with an object that has a key called topics, value of which is an object of all topics available", () => {
+  test("200: responds with an object that has a key called topics, value of which is an object of all topics available", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
@@ -41,7 +41,7 @@ describe("GET /api/topics", () => {
         });
       });
   });
-  test("404: responds 404 when an invalid request had been made to the endpoint", () => {
+  test("404: responds with an error when an invalid request had been made to the endpoint", () => {
     return request(app)
       .get("/api/cola")
       .expect(404)
@@ -52,7 +52,7 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("200: Responds with a specific object with a requested id", () => {
+  test("200: responds with a specific object with a requested id", () => {
     return request(app)
       .get("/api/articles/3")
       .expect(200)
@@ -98,7 +98,7 @@ describe("GET /api/articles/:article_id", () => {
 });
 
 describe("GET /api/articles", () => {
-  test("200: Responds with an array of objects, that are sorted in descending order", () => {
+  test("200: responds with an array of article objects, that are sorted in descending order", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -129,7 +129,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("404: responds 404 when a request to an invalid endpoint has been made", () => {
+  test("404: responds with an error when a request to an invalid endpoint has been made", () => {
     return request(app)
       .get("/api/articlez")
       .expect(404)
@@ -336,7 +336,6 @@ describe("DELETE /api/comments/:comment_id", () => {
         return db.query("SELECT * FROM comments WHERE comment_id = 4");
       })
       .then(({ rows }) => {
-        console.log(rows);
         expect(rows.length).toBe(0);
       });
   });
@@ -351,6 +350,32 @@ describe("DELETE /api/comments/:comment_id", () => {
   test("404: responds with an error if the comment_id doesn't exist", () => {
     return request(app)
       .delete("/api/comments/4945")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+});
+
+describe("GET /api/users", () => {
+  test("200: responds with an array of users objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        const usersArray = response.body.users;
+        expect(usersArray.length > 0).toBe(true);
+        usersArray.forEach((user) => {
+          const { username, name, avatar_url } = user;
+          expect(typeof username).toBe("string");
+          expect(typeof name).toBe("string");
+          expect(typeof avatar_url).toBe("string");
+        });
+      });
+  });
+  test("404: responds with an error when a request to an invalid endpoint has been made", () => {
+    return request(app)
+      .get("/api/userzz")
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Not found");
