@@ -93,5 +93,17 @@
         }
       ]
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes a comment by specific comment_id, returns a response with status 204 and message No Content",
+    "queries": [],
+    "exampleResponse": {
+      "ServerResponse": [
+        {
+          "statusCode": 204,
+          "statusMessage": "No Content"
+        }
+      ]
+    }
   }
 }
