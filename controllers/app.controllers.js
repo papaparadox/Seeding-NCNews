@@ -48,7 +48,6 @@ function getArticles(request, response, next) {
       });
   } else {
     const { sort_by, order, topic } = request.query;
-    const validTopics = ["mitch", "cats"];
     if (topic !== undefined) {
       selectArticlesByTopic(topic)
         .then((articles) => {
