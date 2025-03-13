@@ -31,3 +31,7 @@ db.query(
 ).then(({ rows }) => {
   console.log(rows);
 });
+
+db.query("SELECT * FROM articles WHERE topic = banana").then(({ rows }) => {
+  console.log(rows);
+});
