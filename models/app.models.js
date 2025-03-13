@@ -16,12 +16,11 @@ function selectArticleByID(article_id) {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Not found" });
       }
-      console.log(rows[0]);
       return rows[0];
     });
 }
 
-function selectAllArticles(sort_by = "created_at", orderToUpper = "desc") {
+function selectAllArticles(sort_by = "created_at", order = "desc") {
   if (arguments.length === 0) {
     return db
       .query(
@@ -42,15 +41,12 @@ function selectAllArticles(sort_by = "created_at", orderToUpper = "desc") {
       "comment_count",
     ];
     const validOrder = ["asc", "desc"];
-    if (
-      !validArticleColumns.includes(sort_by) ||
-      !validOrder.includes(orderToUpper)
-    ) {
+    if (!validArticleColumns.includes(sort_by) || !validOrder.includes(order)) {
       return Promise.reject({ status: 400, msg: "Bad request" });
     } else {
       return db
         .query(
-          `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY ${sort_by} ${orderToUpper}`
+          `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY ${sort_by} ${order}`
         )
         .then(({ rows }) => {
           return rows;
@@ -61,15 +57,24 @@ function selectAllArticles(sort_by = "created_at", orderToUpper = "desc") {
 
 function selectArticlesByTopic(topic) {
   return db
-    .query(
-      `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id WHERE articles.topic = $1 GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY created_at DESC`,
-      [topic]
-    )
+    .query("SELECT * FROM articles WHERE topic = $1", [topic])
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Not found" });
       }
-      return rows;
+    })
+    .then(() => {
+      return db
+        .query(
+          `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id WHERE articles.topic = $1 GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY created_at DESC`,
+          [topic]
+        )
+        .then(({ rows }) => {
+          if (rows.length === 0) {
+            return Promise.reject({ status: 404, msg: "Not found" });
+          }
+          return rows;
+        });
     });
 }
 
