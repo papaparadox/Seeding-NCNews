@@ -66,6 +66,7 @@ describe("GET /api/articles/:article_id", () => {
           created_at,
           votes,
           article_img_url,
+          comment_count,
         } = response.body.article;
         expect(article_id).toBe(3);
         expect(author).toBe("icellusedkars");
@@ -77,6 +78,8 @@ describe("GET /api/articles/:article_id", () => {
         expect(article_img_url).toBe(
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
         );
+        expect(response.body.article).toHaveProperty("comment_count");
+        expect(typeof comment_count).toBe("number");
       });
   });
   test("404: responds with an error if the article doesn't exist by provided value", () => {
