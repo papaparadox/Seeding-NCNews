@@ -11,6 +11,7 @@ const {
   selectAllUsers,
   selectArticlesByTopic,
   selectUsersByUsername,
+  updateCommentByID,
 } = require("../models/app.models");
 
 function sendAllEndpoints(request, response) {
@@ -143,6 +144,19 @@ function getUserByUsername(request, response, next) {
       });
   }
 }
+
+function patchCommentByID(request, response, next) {
+  const { comment_id } = request.params;
+  const { inc_votes } = request.body;
+  updateCommentByID(inc_votes, comment_id)
+    .then((newComment) => {
+      response.status(200).send({ newComment: newComment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   sendAllEndpoints,
   getAllTopics,
@@ -154,4 +168,5 @@ module.exports = {
   removeCommentByID,
   getAllUsers,
   getUserByUsername,
+  patchCommentByID,
 };
