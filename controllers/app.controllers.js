@@ -10,6 +10,7 @@ const {
   deleteCommentByID,
   selectAllUsers,
   selectArticlesByTopic,
+  selectUsersByUsername,
 } = require("../models/app.models");
 
 function sendAllEndpoints(request, response) {
@@ -126,6 +127,22 @@ function getAllUsers(request, response, next) {
       next(err);
     });
 }
+
+function getUserByUsername(request, response, next) {
+  const { username } = request.params;
+  const regex = /^[a-zA-z]/g;
+  if (!username.match(regex)) {
+    response.status(400).send({ msg: "Invalid request" });
+  } else {
+    selectUsersByUsername(username)
+      .then((user) => {
+        response.status(200).send({ user: user });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
+}
 module.exports = {
   sendAllEndpoints,
   getAllTopics,
@@ -136,4 +153,5 @@ module.exports = {
   patchArticleByID,
   removeCommentByID,
   getAllUsers,
+  getUserByUsername,
 };
