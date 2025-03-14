@@ -12,6 +12,7 @@ const {
   selectArticlesByTopic,
   selectUsersByUsername,
   updateCommentByID,
+  insertArticle,
 } = require("../models/app.models");
 
 function sendAllEndpoints(request, response) {
@@ -157,6 +158,16 @@ function patchCommentByID(request, response, next) {
     });
 }
 
+function postNewArticle(request, response, next) {
+  const { author, title, body, topic, article_img_url } = request.body;
+  insertArticle(author, title, body, topic, article_img_url)
+    .then((newArticle) => {
+      response.status(201).send({ newArticle: newArticle });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
 module.exports = {
   sendAllEndpoints,
   getAllTopics,
@@ -169,4 +180,5 @@ module.exports = {
   getAllUsers,
   getUserByUsername,
   patchCommentByID,
+  postNewArticle,
 };

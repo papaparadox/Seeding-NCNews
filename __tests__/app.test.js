@@ -210,6 +210,96 @@ describe("GET /api/articles", () => {
   });
 });
 
+describe("POST /api/articles", () => {
+  test("200: responds with the newly added article", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "butter_bridge",
+        title: "I enjoy sailing my 200 metre yacht",
+        body: "It costed me around 2 million quid..I guess I can allow myself a treat from time to time",
+        topic: "cats",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(201)
+      .then((response) => {
+        const {
+          author,
+          body,
+          title,
+          topic,
+          article_img_url,
+          comment_count,
+          created_at,
+          votes,
+          article_id,
+        } = response.body.newArticle;
+        expect(comment_count).toBe(0);
+        expect(author).toBe("butter_bridge");
+        expect(title).toBe("I enjoy sailing my 200 metre yacht");
+        expect(body).toBe(
+          "It costed me around 2 million quid..I guess I can allow myself a treat from time to time"
+        );
+        expect(topic).toBe("cats");
+        expect(article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+        expect(typeof comment_count).toBe("number");
+        expect(typeof created_at).toBe("string");
+        expect(typeof votes).toBe("number");
+        expect(typeof article_id).toBe("number");
+      });
+  });
+  test("400: responds with an error when any of the keys are missing", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "butter_bridge",
+        title: "title-eliminator",
+        topic: "cats",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("400: responds with an error when the author in send request doesn't exist", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "moy_bratanchik_rodya",
+        title: "Boxing Day",
+        body: "I did boxing when I was a little boy",
+        topic: "mitch",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("404: responds with an error when the topic in send request doesn't exist", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "icellusedkars",
+        title: "Boxing Day",
+        body: "I did boxing when I was a little boy",
+        topic: "nocik",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+});
+
 describe("GET /api/articles/:article_id/comments", () => {
   test("200: responds with an array of comments for the given article_id", () => {
     return request(app)
