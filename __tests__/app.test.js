@@ -502,3 +502,74 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: responds with an object of comment with relevant comment_id of and inc_votes key passed has a postiive number", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({ inc_votes: 23 })
+      .expect(200)
+      .then((response) => {
+        const { article_id, comment_id, body, votes, author, created_at } =
+          response.body.newComment;
+        expect(votes).toBe(123);
+        expect(comment_id).toBe(3);
+        expect(typeof article_id).toBe("number");
+        expect(typeof body).toBe("string");
+        expect(typeof author).toBe("string");
+        expect(typeof created_at).toBe("string");
+      });
+  });
+  test("200: responds with an object of comment with relevant comment_id of and inc_votes key passed has a negative number", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({ inc_votes: -200 })
+      .expect(200)
+      .then((response) => {
+        const { article_id, comment_id, body, votes, author, created_at } =
+          response.body.newComment;
+        expect(votes).toBe(-100);
+        expect(comment_id).toBe(3);
+        expect(typeof article_id).toBe("number");
+        expect(typeof body).toBe("string");
+        expect(typeof author).toBe("string");
+        expect(typeof created_at).toBe("string");
+      });
+  });
+  test("404: responds with an error when a comment_id provided is a valid value but doesn't exist", () => {
+    return request(app)
+      .patch("/api/comments/4444")
+      .send({ inc_votes: 12 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("400: responds with an error when a comment_id provided has a non-numeric value", () => {
+    return request(app)
+      .patch("/api/comments/wabalabadabdab")
+      .send({ inc_votes: 10 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("400: responds with an error when inc_votes key in request has a non-numeric value", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({ inc_votes: "funny cat videos" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("400: responds with an error when inc_votes key is missing from request", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+});
