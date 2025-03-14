@@ -462,3 +462,43 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("GET /api/users/:username", () => {
+  test("200: responds with an object of user that has username provided", () => {
+    return request(app)
+      .get("/api/users/rogersop")
+      .expect(200)
+      .then((response) => {
+        const { name, username, avatar_url } = response.body.user;
+        expect(name).toBe("paul");
+        expect(username).toBe("rogersop");
+        expect(avatar_url).toBe(
+          "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+        );
+      });
+  });
+  test("404: responds with an error when the username provided doesn't exist", () => {
+    return request(app)
+      .get("/api/users/rodion_bratanchik")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("400: responds with an error when the username provided has no letters", () => {
+    return request(app)
+      .get("/api/users/234423")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("400: responds with an error when the username provided starts with non-alphabetic value", () => {
+    return request(app)
+      .get("/api/users/2sonya_barambonya")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+});
