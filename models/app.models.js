@@ -168,6 +168,35 @@ function updateCommentByID(votes, comment_id) {
     return Promise.reject({ status: 400, msg: "Invalid request" });
   }
 }
+
+function insertArticle(author, title, body, topic, article_img_url) {
+  return db
+    .query("SELECT * FROM articles WHERE author = $1", [author])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 400, msg: "Invalid request" });
+      }
+    })
+    .then(() => {
+      return db
+        .query(
+          "INSERT INTO articles (author, title, body, topic, article_img_url, votes, created_at) VALUES($1, $2, $3, $4, $5, DEFAULT, NOW()) RETURNING *",
+          [author, title, body, topic, article_img_url]
+        )
+        .then(({ rows }) => {
+          const newArticle = rows[0];
+          return db
+            .query(
+              "SELECT COUNT(comments.comment_id)::INT AS comment_count FROM comments WHERE comments.article_id = $1",
+              [newArticle.article_id]
+            )
+            .then(({ rows }) => {
+              newArticle.comment_count = rows[0].comment_count;
+              return newArticle;
+            });
+        });
+    });
+}
 module.exports = {
   selectAllTopics,
   selectArticleByID,
@@ -180,4 +209,5 @@ module.exports = {
   selectArticlesByTopic,
   selectUsersByUsername,
   updateCommentByID,
+  insertArticle,
 };
