@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const db = require("./db/connection.js");
 const endpoints = require("./endpoints.json");
@@ -8,6 +9,7 @@ const {
   handlePsqlErrors,
 } = require("./controllers/errors.controllers.js");
 const apiRouter = require("./routes/api-router.js");
+app.use(cors());
 
 app.use(express.json());
 app.use("/api", apiRouter);
